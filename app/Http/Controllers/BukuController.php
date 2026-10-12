@@ -8,10 +8,22 @@ use Illuminate\Http\Request;
 
 class BukuController extends Controller
 {
-    // 1. Tampilkan Semua Buku (Eager Loading + Pagination untuk mitigasi N+1 problem)
-    public function index()
+    // 1. Tampilkan Semua Buku (Eager Loading with('kategori') + Pagination untuk atasi N+1 problem)
+    public function index(Request $request)
     {
-        $bukus = Buku::with('kategori')->latest()->paginate(10);
+        $query = Buku::with('kategori')->latest();
+
+        // Fitur pencarian sederhana untuk kemudahan eksplorasi katalog buku
+        if ($request->filled('search')) {
+            $keyword = $request->search;
+            $query->where(function ($q) use ($keyword) {
+                $q->where('judul', 'like', "%{$keyword}%")
+                  ->orWhere('penulis', 'like', "%{$keyword}%")
+                  ->orWhere('isbn', 'like', "%{$keyword}%");
+            });
+        }
+
+        $bukus = $query->paginate(10)->withQueryString();
 
         return view('buku.index', compact('bukus'));
     }
@@ -19,7 +31,7 @@ class BukuController extends Controller
     // 2. Tampilkan Form Tambah Buku
     public function create()
     {
-        $kategoris = Kategori::all();
+        $kategoris = Kategori::orderBy('nama_kategori')->get();
 
         return view('buku.create', compact('kategoris'));
     }
@@ -40,7 +52,7 @@ class BukuController extends Controller
 
         Buku::create($validated);
 
-        return redirect()->route('buku.index')->with('success', 'Data buku berhasil ditambahkan!');
+        return redirect()->route('buku.index')->with('success', 'Buku berhasil ditambahkan!');
     }
 
     // 4. Tampilkan Detail Buku (Route Model Binding)
@@ -54,7 +66,7 @@ class BukuController extends Controller
     // 5. Tampilkan Form Edit Buku
     public function edit(Buku $buku)
     {
-        $kategoris = Kategori::all();
+        $kategoris = Kategori::orderBy('nama_kategori')->get();
 
         return view('buku.edit', compact('buku', 'kategoris'));
     }
@@ -75,7 +87,7 @@ class BukuController extends Controller
 
         $buku->update($validated);
 
-        return redirect()->route('buku.index')->with('success', 'Data buku berhasil diperbarui!');
+        return redirect()->route('buku.index')->with('success', 'Buku berhasil diperbarui!');
     }
 
     // 7. Hapus Buku dari Database (Route Model Binding)
@@ -83,6 +95,6 @@ class BukuController extends Controller
     {
         $buku->delete();
 
-        return redirect()->route('buku.index')->with('success', 'Data buku berhasil dihapus!');
+        return redirect()->route('buku.index')->with('success', 'Buku berhasil dihapus!');
     }
 }

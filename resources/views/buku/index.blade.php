@@ -1,29 +1,54 @@
 <x-layout title="Koleksi Buku">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
+    <!-- Header Halaman & Pencarian -->
+    <div class="row align-items-center mb-4 g-3">
+        <div class="col-md-6">
             <h2 class="h3 fw-bold text-del mb-1">
                 <i class="bi bi-journal-bookmark me-2"></i>Daftar Koleksi Buku
             </h2>
             <p class="text-muted small mb-0">Kelola katalog inventaris buku perpustakaan Institut Teknologi Del</p>
         </div>
-        <a href="{{ route('buku.create') }}" class="btn btn-del shadow-sm">
-            <i class="bi bi-plus-lg me-1"></i> Tambah Buku
-        </a>
+        <div class="col-md-6">
+            <div class="d-flex justify-content-md-end align-items-center gap-2">
+                <!-- Form Pencarian Sederhana -->
+                <form action="{{ route('buku.index') }}" method="GET" class="d-flex gap-1 flex-grow-1 flex-md-grow-0" style="max-width: 280px;">
+                    <div class="input-group input-group-sm">
+                        <input type="text"
+                               name="search"
+                               class="form-control"
+                               placeholder="Cari judul, penulis, ISBN..."
+                               value="{{ request('search') }}">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        @if(request('search'))
+                            <a href="{{ route('buku.index') }}" class="btn btn-outline-danger" title="Reset filter">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+                        @endif
+                    </div>
+                </form>
+
+                <a href="{{ route('buku.create') }}" class="btn btn-del btn-sm shadow-sm text-nowrap">
+                    <i class="bi bi-plus-lg me-1"></i> Tambah Buku
+                </a>
+            </div>
+        </div>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-3">
+    <!-- Tabel Daftar Buku -->
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light border-bottom">
                         <tr>
                             <th scope="col" class="text-center" style="width: 50px;">No</th>
-                            <th scope="col" style="width: 140px;">ISBN</th>
+                            <th scope="col" style="width: 150px;">ISBN</th>
                             <th scope="col">Judul & Penulis</th>
-                            <th scope="col" style="width: 180px;">Kategori</th>
-                            <th scope="col" style="width: 140px;">Penerbit / Thn</th>
-                            <th scope="col" class="text-center" style="width: 80px;">Stok</th>
-                            <th scope="col" class="text-center" style="width: 180px;">Aksi</th>
+                            <th scope="col" style="width: 200px;">Kategori</th>
+                            <th scope="col" style="width: 160px;">Penerbit / Thn</th>
+                            <th scope="col" class="text-center" style="width: 90px;">Stok</th>
+                            <th scope="col" class="text-center" style="width: 140px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -33,23 +58,25 @@
                                     {{ $bukus->firstItem() + $index }}
                                 </td>
                                 <td>
-                                    <span class="badge bg-light text-dark border font-monospace">
+                                    <span class="badge bg-light text-dark border font-monospace px-2 py-1">
                                         {{ $buku->isbn }}
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="fw-bold text-dark">{{ $buku->judul }}</div>
+                                    <a href="{{ route('buku.show', $buku) }}" class="text-decoration-none fw-bold text-dark d-block">
+                                        {{ $buku->judul }}
+                                    </a>
                                     <small class="text-muted">
                                         <i class="bi bi-person me-1"></i>{{ $buku->penulis }}
                                     </small>
                                 </td>
                                 <td>
-                                    <span class="badge badge-del">
+                                    <span class="badge badge-del px-2 py-1">
                                         {{ $buku->kategori->nama_kategori ?? 'Tanpa Kategori' }}
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="small fw-semibold">{{ $buku->penerbit }}</div>
+                                    <div class="small fw-semibold text-secondary">{{ $buku->penerbit }}</div>
                                     <small class="text-muted">{{ $buku->tahun_terbit }}</small>
                                 </td>
                                 <td class="text-center">
@@ -89,10 +116,17 @@
                             <tr>
                                 <td colspan="7" class="text-center py-5 text-muted">
                                     <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary"></i>
-                                    <p class="mb-2">Belum ada koleksi buku yang terdaftar di sistem.</p>
-                                    <a href="{{ route('buku.create') }}" class="btn btn-sm btn-del">
-                                        <i class="bi bi-plus-lg me-1"></i> Tambah Buku Sekarang
-                                    </a>
+                                    @if(request('search'))
+                                        <p class="mb-2">Tidak ditemukan buku dengan kata kunci: <strong>"{{ request('search') }}"</strong></p>
+                                        <a href="{{ route('buku.index') }}" class="btn btn-sm btn-outline-secondary">
+                                            Kembali ke Semua Buku
+                                        </a>
+                                    @else
+                                        <p class="mb-2">Belum ada koleksi buku yang terdaftar di sistem.</p>
+                                        <a href="{{ route('buku.create') }}" class="btn btn-sm btn-del">
+                                            <i class="bi bi-plus-lg me-1"></i> Tambah Buku Sekarang
+                                        </a>
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse
@@ -101,15 +135,11 @@
             </div>
         </div>
 
+        <!-- Pagination Footer (Rapi Tanpa Teks Dobel) -->
         @if ($bukus->hasPages())
-            <div class="card-footer bg-white border-0 py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">
-                        Menampilkan {{ $bukus->firstItem() }} sampai {{ $bukus->lastItem() }} dari {{ $bukus->total() }} buku
-                    </small>
-                    <div>
-                        {{ $bukus->links() }}
-                    </div>
+            <div class="card-footer bg-white border-top py-3">
+                <div class="d-flex justify-content-end">
+                    {{ $bukus->links() }}
                 </div>
             </div>
         @endif

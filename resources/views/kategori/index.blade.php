@@ -6,12 +6,12 @@
             </h2>
             <p class="text-muted small mb-0">Kelola klasifikasi bidang ilmu dan kategori koleksi buku perpustakaan</p>
         </div>
-        <a href="{{ route('kategori.create') }}" class="btn btn-del shadow-sm">
+        <a href="{{ route('kategori.create') }}" class="btn btn-del btn-sm shadow-sm">
             <i class="bi bi-plus-lg me-1"></i> Tambah Kategori
         </a>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-3">
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
@@ -20,8 +20,8 @@
                             <th scope="col" class="text-center" style="width: 60px;">No</th>
                             <th scope="col" style="width: 180px;">Kode Kategori</th>
                             <th scope="col">Nama Kategori</th>
-                            <th scope="col" class="text-center" style="width: 150px;">Jumlah Buku</th>
-                            <th scope="col" class="text-center" style="width: 180px;">Aksi</th>
+                            <th scope="col" class="text-center" style="width: 150px;">Jumlah Koleksi</th>
+                            <th scope="col" class="text-center" style="width: 140px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -31,12 +31,14 @@
                                     {{ $kategoris->firstItem() + $index }}
                                 </td>
                                 <td>
-                                    <span class="badge badge-del font-monospace px-3 py-2">
+                                    <span class="badge badge-del font-monospace px-2 py-1">
                                         {{ $kategori->kode_kategori }}
                                     </span>
                                 </td>
                                 <td>
-                                    <strong class="text-dark">{{ $kategori->nama_kategori }}</strong>
+                                    <a href="{{ route('kategori.show', $kategori) }}" class="text-decoration-none fw-bold text-dark">
+                                        {{ $kategori->nama_kategori }}
+                                    </a>
                                 </td>
                                 <td class="text-center">
                                     <span class="badge bg-secondary-subtle text-secondary px-3 py-1 rounded-pill">
@@ -78,14 +80,9 @@
         </div>
 
         @if ($kategoris->hasPages())
-            <div class="card-footer bg-white border-0 py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">
-                        Menampilkan {{ $kategoris->firstItem() }} sampai {{ $kategoris->lastItem() }} dari {{ $kategoris->total() }} kategori
-                    </small>
-                    <div>
-                        {{ $kategoris->links() }}
-                    </div>
+            <div class="card-footer bg-white border-top py-3">
+                <div class="d-flex justify-content-end">
+                    {{ $kategoris->links() }}
                 </div>
             </div>
         @endif
