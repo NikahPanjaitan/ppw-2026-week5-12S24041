@@ -66,7 +66,7 @@
                                 </td>
                                 <td class="text-center">
                                     @if ($buku->stok > 5)
-                                        <span class="badge badge-del-blue px-2 py-1 rounded-pill">
+                                        <span class="badge badge-del-purple px-2 py-1 rounded-pill">
                                             {{ $buku->stok }} eks
                                         </span>
                                     @elseif ($buku->stok > 0)

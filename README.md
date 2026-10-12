@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="public/images/logo-del.png" alt="Logo Institut Teknologi Del" width="120">
-</p>
-
 # Tugas Praktikum Minggu 05 — PPW
 ## Sistem Informasi Perpustakaan Kampus Del (SIPUS-Del)
 
@@ -15,7 +11,7 @@
 ---
 
 ## Deskripsi Tugas
-Aplikasi **SIPUS-Del** adalah sistem informasi perpustakaan berbasis web yang dibuat menggunakan framework **Laravel 11**. Tugas ini bertujuan untuk mengimplementasikan konsep arsitektur Model-View-Controller (MVC), relasi Eloquent ORM (One-to-Many), validasi form sisi server, Blade component engine, dan optimasi query kueri database (mitigasi N+1 problem menggunakan Eager Loading).
+Aplikasi **SIPUS-Del** adalah sistem informasi perpustakaan berbasis web yang dibuat menggunakan framework **Laravel 11**. Tugas ini bertujuan untuk mengimplementasikan konsep arsitektur Model-View-Controller (MVC), relasi Eloquent ORM (One-to-Many), validasi form sisi server, Blade component engine, dan optimasi query database (mitigasi N+1 problem menggunakan Eager Loading).
 
 ---
 
@@ -41,7 +37,7 @@ Aplikasi **SIPUS-Del** adalah sistem informasi perpustakaan berbasis web yang di
 
 ### 3. Tampilan Antarmuka (Blade UI & Bootstrap 5)
 * Menggunakan master layout `<x-layout>` dengan Bootstrap 5 CDN.
-* Nuansa warna identitas kampus Del: **Del Royal Purple (`#4C1D95`)** dan **Del Blue (`#0284C7`)**.
+* Nuansa warna identitas kampus Del: **Del Royal Purple (`#4C1D95`)**.
 * Menampilkan pesan notifikasi flash session saat aksi berhasil (`@if(session('success'))`).
 * Menggunakan direktif `@forelse` dan `@empty` untuk menangani tabel jika data masih kosong.
 * Form dilengkapi token keamanan `@csrf` dan penampil pesan error `@error`.
@@ -59,8 +55,8 @@ Dengan Eager Loading, Laravel tidak menjalankan kueri berulang (1 + N kueri), me
 
 Bukti log audit kueri yang tercatat di `storage/logs/laravel.log`:
 ```text
-[SQL AUDIT] (0.48 ms) select * from "bukus" order by "created_at" desc limit 10 offset 0
-[SQL AUDIT] (0.50 ms) select * from "kategoris" where "kategoris"."id" in (1, 2, 3, 4, 5)
+[2026-10-12 02:56:11] local.INFO: [SQL AUDIT] (0.48 ms) select * from "bukus" order by "created_at" desc limit 10 offset 0
+[2026-10-12 02:56:12] local.INFO: [SQL AUDIT] (0.50 ms) select * from "kategoris" where "kategoris"."id" in (1, 2, 3, 4, 5)
 ```
 
 ---
@@ -69,7 +65,7 @@ Bukti log audit kueri yang tercatat di `storage/logs/laravel.log`:
 
 1. **Clone Repositori:**
    ```bash
-   git clone https://github.com/ppw-2026-week5-12S24041.git
+   git clone https://github.com/NikahPanjaitan/ppw-2026-week5-12S24041.git
    cd ppw-2026-week5-12S24041
    ```
 

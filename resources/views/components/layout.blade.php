@@ -51,10 +51,10 @@
             color: #ffffff;
         }
 
-        .badge-del-blue {
-            background-color: #E0F2FE;
-            color: #0284C7;
-            border: 1px solid #BAE6FD;
+        .badge-del-purple {
+            background-color: var(--del-purple-light);
+            color: var(--del-purple);
+            border: 1px solid #DDD6FE;
             font-weight: 600;
         }
 

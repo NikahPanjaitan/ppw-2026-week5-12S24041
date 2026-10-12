@@ -65,7 +65,7 @@
                             <div class="p-3 bg-light rounded-3 border">
                                 <small class="text-muted d-block mb-1">Ketersediaan Stok</small>
                                 @if($buku->stok > 0)
-                                    <span class="badge badge-del-blue fs-6 px-3 py-1 rounded-pill">
+                                    <span class="badge badge-del-purple fs-6 px-3 py-1 rounded-pill">
                                         <i class="bi bi-check-circle me-1"></i>Tersedia: {{ $buku->stok }} Eksemplar
                                     </span>
                                 @else
