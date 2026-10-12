@@ -51,6 +51,13 @@
             color: #ffffff;
         }
 
+        .badge-del-blue {
+            background-color: #E0F2FE;
+            color: #0284C7;
+            border: 1px solid #BAE6FD;
+            font-weight: 600;
+        }
+
         .text-del {
             color: var(--del-purple);
         }
