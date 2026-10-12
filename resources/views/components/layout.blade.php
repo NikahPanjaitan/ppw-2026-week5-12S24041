@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{{ $title ?? 'SIPUS-Del' }} — Institut Teknologi Del</title>
+    <link rel="icon" href="{{ asset('images/logo-del.png') }}" type="image/png">
 
     <!-- Bootstrap 5 CSS via CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -75,7 +76,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark navbar-del shadow-sm mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="{{ route('buku.index') }}">
-                <i class="bi bi-book-half"></i>
+                <img src="{{ asset('images/logo-del.png') }}" alt="Logo IT Del" width="30" height="30" class="d-inline-block rounded bg-white p-0.5">
                 SIPUS-Del Perpustakaan
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
