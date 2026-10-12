@@ -128,7 +128,12 @@
     <!-- Footer Master Shell -->
     <footer class="bg-white border-top py-3 mt-auto text-center text-muted small">
         <div class="container">
-            &copy; {{ date('Y') }} <strong>SIPUS-Del</strong> — Sistem Informasi Perpustakaan Institut Teknologi Del.
+            <div class="fw-semibold text-dark">
+                &copy; {{ date('Y') }} <strong>SIPUS-Del</strong> — Sistem Informasi Perpustakaan Institut Teknologi Del
+            </div>
+            <div class="text-secondary" style="font-size: 0.8rem;">
+                Jl. Sisingamangaraja, Sitoluama, Laguboti, Toba, Sumatera Utara 22381 &bull; <em>MarTuhan, Marroha, Marbisuk</em>
+            </div>
         </div>
     </footer>
 

@@ -1,16 +1,27 @@
 <x-layout title="Koleksi Buku">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="h3 fw-bold text-del mb-1">
-                <i class="bi bi-journal-bookmark me-2"></i>Daftar Koleksi Buku
-            </h2>
-            <p class="text-muted small mb-0">Kelola katalog inventaris buku perpustakaan Institut Teknologi Del</p>
+    <!-- Banner Sambutan Kampus Del -->
+    <div class="card border-0 rounded-3 shadow-sm mb-4 text-white overflow-hidden" style="background: linear-gradient(135deg, #4C1D95 0%, #3B0764 100%);">
+        <div class="card-body p-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-8">
+                    <span class="badge bg-white bg-opacity-25 text-white mb-2 px-3 py-1">
+                        Institut Teknologi Del &bull; <em>MarTuhan, Marroha, Marbisuk</em>
+                    </span>
+                    <h2 class="h3 fw-bold mb-1">Daftar Koleksi Buku</h2>
+                    <p class="text-white-50 mb-0 small">
+                        Kelola katalog inventaris buku perpustakaan Institut Teknologi Del
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="{{ route('buku.create') }}" class="btn btn-light fw-semibold text-del shadow-sm px-3 py-2">
+                        <i class="bi bi-plus-lg me-1"></i> Tambah Buku
+                    </a>
+                </div>
+            </div>
         </div>
-        <a href="{{ route('buku.create') }}" class="btn btn-del shadow-sm">
-            <i class="bi bi-plus-lg me-1"></i> Tambah Buku
-        </a>
     </div>
 
+    <!-- Tabel Daftar Buku -->
     <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">

@@ -1,16 +1,27 @@
 <x-layout title="Daftar Kategori">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="h3 fw-bold text-del mb-1">
-                <i class="bi bi-tags me-2"></i>Daftar Kategori Buku
-            </h2>
-            <p class="text-muted small mb-0">Kelola klasifikasi bidang ilmu dan kategori koleksi buku perpustakaan</p>
+    <!-- Banner Kategori Kampus Del -->
+    <div class="card border-0 rounded-3 shadow-sm mb-4 text-white overflow-hidden" style="background: linear-gradient(135deg, #4C1D95 0%, #3B0764 100%);">
+        <div class="card-body p-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-8">
+                    <span class="badge bg-white bg-opacity-25 text-white mb-2 px-3 py-1">
+                        Institut Teknologi Del &bull; Klasifikasi Ilmu
+                    </span>
+                    <h2 class="h3 fw-bold mb-1">Daftar Kategori Buku</h2>
+                    <p class="text-white-50 mb-0 small">
+                        Kelola bidang ilmu dan kategori koleksi buku perpustakaan Institut Teknologi Del
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="{{ route('kategori.create') }}" class="btn btn-light fw-semibold text-del shadow-sm px-3 py-2">
+                        <i class="bi bi-plus-lg me-1"></i> Tambah Kategori
+                    </a>
+                </div>
+            </div>
         </div>
-        <a href="{{ route('kategori.create') }}" class="btn btn-del btn-sm shadow-sm">
-            <i class="bi bi-plus-lg me-1"></i> Tambah Kategori
-        </a>
     </div>
 
+    <!-- Tabel Kategori -->
     <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
