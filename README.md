@@ -1,193 +1,108 @@
-# Laporan Praktikum Minggu 05
-### Pemrograman & Pengujian Web (12S3101)
+<p align="center">
+  <img src="public/images/logo-del.png" alt="Logo Institut Teknologi Del" width="120">
+</p>
 
-* **Topik Modul:** Implementasi Pola Arsitektur Model-View-Controller (MVC), Eloquent ORM, Validasi Server-Side, Blade Component Engine, dan Asset Bundling pada Laravel 11.x  
-* **Nama Studi Kasus:** SIPUS-Del (Sistem Informasi Perpustakaan Kampus Del)  
-* **Dosen Pengampu:** Chandro Pardede, S.Kom., M.Sc.  
-* **Tahun Akademik:** Semester Ganjil 2026/2027  
-
----
+# Tugas Praktikum Minggu 05 — PPW
+## Sistem Informasi Perpustakaan Kampus Del (SIPUS-Del)
 
 ## Identitas Mahasiswa
-
-* **Nama:** Suchia Panjaitan  
-* **NIM:** [Isi NIM Anda, contoh: 12S23001]  
-* **Program Studi:** Sarjana Sistem Informasi / Sarjana Informatika  
-* **Fakultas:** Fakultas Informatika dan Teknik Elektro (FITE)  
-* **Institusi:** Institut Teknologi Del, Laguboti  
-
----
-
-## 1. Deskripsi Singkat Aplikasi
-
-**SIPUS-Del** adalah sistem informasi perpustakaan berbasis web *server-side rendering* (SSR) yang dirancang untuk mengelola katalog koleksi buku dan klasifikasi bidang ilmu di Institut Teknologi Del. 
-
-Aplikasi ini dibangun menggunakan framework **Laravel 11** dengan mematuhi prinsip *Separation of Concerns* (SoC) pada pola MVC standar:
-* **Model:** Mengelola representasi entitas data (`Kategori` dan `Buku`) menggunakan Eloquent ORM.
-* **View:** Menyajikan antarmuka pengguna berbasis komponen Blade (`<x-layout>`) dengan styling Bootstrap 5 CDN bertema warna **Del Royal Purple (`#4C1D95`)**.
-* **Controller:** Mengorkestrasi aliran HTTP Request, validasi masukan form di sisi server, dan eksekusi query data.
+* **Nama:** Nikah Suchia Panjaitan
+* **NIM:** 12S24041
+* **Program Studi:** S1 Sistem Informasi
+* **Institut:** Institut Teknologi Del
+* **Dosen Pengampu:** Chandro Pardede, S.Kom., M.Sc.
 
 ---
 
-## 2. Skema Basis Data & Relasi Eloquent
-
-### A. Tabel `kategoris`
-Menyimpan klasifikasi kategori buku.
-* `id`: BigInteger (Primary Key, Auto Increment)
-* `kode_kategori`: Varchar(20) — Unik, kode pengenal kategori (misal: `KTG-001`)
-* `nama_kategori`: Varchar(100) — Nama bidang ilmu / kategori buku
-* `created_at` & `updated_at`: Timestamps
-
-### B. Tabel `bukus`
-Menyimpan data katalog inventaris buku perpustakaan.
-* `id`: BigInteger (Primary Key, Auto Increment)
-* `isbn`: Varchar(30) — Unik, nomor ISBN buku
-* `judul`: Varchar(255) — Judul buku
-* `penulis`: Varchar(150) — Nama pengarang buku
-* `penerbit`: Varchar(150) — Nama penerbit
-* `tahun_terbit`: Integer — Tahun terbit buku (4 digit)
-* `kategori_id`: Foreign Key ke `kategoris(id)` dengan opsi `cascadeOnDelete()`
-* `stok`: Integer — Jumlah eksemplar buku yang tersedia (min: 0)
-* `sinopsis`: Text (Nullable) — Ringkasan singkat isi buku
-* `created_at` & `updated_at`: Timestamps
-
-### C. Kardinalitas Relasi Eloquent
-1. **Model `Kategori.php`** memiliki relasi *One-to-Many*:
-   ```php
-   public function bukus(): HasMany
-   {
-       return $this->hasMany(Buku::class, 'kategori_id');
-   }
-   ```
-2. **Model `Buku.php`** memiliki relasi *Many-to-One*:
-   ```php
-   public function kategori(): BelongsTo
-   {
-       return $this->belongsTo(Kategori::class, 'kategori_id');
-   }
-   ```
-Kedua model telah dilindungi dengan properti `$fillable` untuk mencegah celah keamanan *Mass Assignment*.
+## Deskripsi Tugas
+Aplikasi **SIPUS-Del** adalah sistem informasi perpustakaan berbasis web yang dibuat menggunakan framework **Laravel 11**. Tugas ini bertujuan untuk mengimplementasikan konsep arsitektur Model-View-Controller (MVC), relasi Eloquent ORM (One-to-Many), validasi form sisi server, Blade component engine, dan optimasi query kueri database (mitigasi N+1 problem menggunakan Eager Loading).
 
 ---
 
-## 3. Rute RESTful & Resource Controller
+## Fitur yang Dikerjakan
 
-Semua aksi CRUD didaftarkan secara deklaratif di `routes/web.php`:
-```php
-Route::get('/', fn () => redirect()->route('buku.index'));
+### 1. Manajemen Koleksi Buku (CRUD Lengkap)
+* **Tampilkan Daftar Buku:** Menampilkan katalog buku dengan pagination (10 buku per halaman) dan relasi kategori.
+* **Tambah Buku Baru:** Formulir input buku dengan validasi sisi server:
+  * ISBN unik
+  * Judul minimal 5 karakter
+  * Penulis, penerbit, tahun terbit (4 digit) wajib diisi
+  * Kategori harus terdaftar di database
+  * Stok minimal 0 (tidak boleh minus)
+* **Detail Buku:** Melihat informasi lengkap buku dan sinopsis menggunakan Route Model Binding.
+* **Edit Buku:** Mengubah informasi data buku menggunakan method spoofing `@method('PUT')`.
+* **Hapus Buku:** Menghapus data buku menggunakan method spoofing `@method('DELETE')`.
 
-Route::resource('kategori', KategoriController::class);
-Route::resource('buku', BukuController::class);
-```
+### 2. Manajemen Kategori Buku (CRUD Lengkap)
+* Menampilkan daftar kategori beserta jumlah buku di dalamnya.
+* Tambah kategori baru dengan kode kategori unik dan nama kategori.
+* Edit dan hapus data kategori.
+* Relasi: Satu kategori memiliki banyak buku (`hasMany`), dan setiap buku berinduk ke satu kategori (`belongsTo`).
 
-### Tabel Pemetaan 7 Aksi RESTful:
-| Method HTTP | URL Endpoint | Action Controller | Fungsi |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/buku` | `BukuController@index` | Menampilkan katalog buku (+ pagination & pencarian) |
-| `GET` | `/buku/create` | `BukuController@create` | Menampilkan formulir tambah buku baru |
-| `POST` | `/buku` | `BukuController@store` | Menyimpan buku baru ke database |
-| `GET` | `/buku/{buku}` | `BukuController@show` | Menampilkan detail buku (*Route Model Binding*) |
-| `GET` | `/buku/{buku}/edit` | `BukuController@edit` | Menampilkan formulir edit buku (*Route Model Binding*) |
-| `PUT` | `/buku/{buku}` | `BukuController@update` | Memperbarui data buku di database |
-| `DELETE` | `/buku/{buku}` | `BukuController@destroy` | Menghapus buku dari database |
-
-*(Entitas Kategori memiliki 7 aksi RESTful yang identik pada `KategoriController`)*.
-
----
-
-## 4. Validasi Sisi Server & Keamanan Web
-
-Validasi input dilakukan langsung di controller menggunakan method bawaan `$request->validate()`:
-```php
-$validated = $request->validate([
-    'isbn'         => 'required|string|max:30|unique:bukus,isbn,' . ($buku->id ?? ''),
-    'judul'        => 'required|string|min:5|max:255',
-    'penulis'      => 'required|string|max:150',
-    'penerbit'     => 'required|string|max:150',
-    'tahun_terbit' => 'required|integer|digits:4|min:1900|max:' . (date('Y') + 1),
-    'kategori_id'  => 'required|exists:kategoris,id',
-    'stok'         => 'required|integer|min:0',
-    'sinopsis'     => 'nullable|string',
-]);
-```
-
-**Fitur Keamanan:**
-* **CSRF Token:** Semua formulir menyertakan token `@csrf` untuk mencegah serangan *Cross-Site Request Forgery*.
-* **Method Spoofing:** Formulir update menggunakan `@method('PUT')` dan hapus menggunakan `@method('DELETE')`.
-* **Pencegahan XSS:** Penampilan teks menggunakan sintaks blade `{{ ... }}` yang otomatis melakukan *HTML escaping*.
-* **Feedback Galat:** Tampilan pesan galat validasi responsif menggunakan direktif `@error('nama_field')`.
+### 3. Tampilan Antarmuka (Blade UI & Bootstrap 5)
+* Menggunakan master layout `<x-layout>` dengan Bootstrap 5 CDN.
+* Nuansa warna identitas kampus Del: **Del Royal Purple (`#4C1D95`)** dan **Del Blue (`#0284C7`)**.
+* Menampilkan pesan notifikasi flash session saat aksi berhasil (`@if(session('success'))`).
+* Menggunakan direktif `@forelse` dan `@empty` untuk menangani tabel jika data masih kosong.
+* Form dilengkapi token keamanan `@csrf` dan penampil pesan error `@error`.
 
 ---
 
-## 5. Mitigasi N+1 Problem & Bukti Audit SQL Log
+## Pembuktian Mitigasi N+1 Query Problem (Eager Loading)
 
-### Masalah N+1 Query (Lazy Loading)
-Jika mengambil daftar buku lalu memanggil relasi kategori secara terpisah di loop Blade (`$buku->kategori->nama_kategori`), server akan mengeksekusi 1 kueri untuk tabel buku ditambah N kueri terpisah untuk setiap kategori (Total $1 + N = 11$ kueri untuk 10 data buku).
-
-### Solusi Eager Loading (`with()`)
-Di `BukuController@index`, relasi kategori dimuat lebih awal:
+Pada `BukuController@index`, pengambilan data buku menerapkan Eager Loading:
 ```php
 $bukus = Buku::with('kategori')->latest()->paginate(10);
 ```
 
-### Bukti Audit Kueri SQL dari `storage/logs/laravel.log`:
-Audit kueri diaktifkan melalui listener `DB::listen` pada `app/Providers/AppServiceProvider.php`:
+Dengan Eager Loading, Laravel tidak menjalankan kueri berulang (1 + N kueri), melainkan hanya mengeksekusi **tepat 2 kueri terpadu** menggunakan klausa `WHERE IN`.
+
+Bukti log audit kueri yang tercatat di `storage/logs/laravel.log`:
 ```text
 [SQL AUDIT] (0.48 ms) select * from "bukus" order by "created_at" desc limit 10 offset 0
 [SQL AUDIT] (0.50 ms) select * from "kategoris" where "kategoris"."id" in (1, 2, 3, 4, 5)
 ```
-> **Pembuktian:** Laravel hanya mengeksekusi **tepat 2 kueri terpadu** berkat klausa `WHERE IN`. Hal ini membuktikan bahwa masalah $N+1$ Query Problem telah tereliminasi sepenuhnya.
 
 ---
 
-## 6. Panduan Menjalankan Proyek Secara Lokal
+## Cara Menjalankan Proyek Secara Lokal
 
 1. **Clone Repositori:**
    ```bash
-   git clone https://github.com/ppw-2026-week5-[NIM].git sipus-del
-   cd sipus-del
+   git clone https://github.com/ppw-2026-week5-12S24041.git
+   cd ppw-2026-week5-12S24041
    ```
 
-2. **Pasang Dependensi:**
+2. **Install Dependensi Composer:**
    ```bash
    composer install
    ```
 
-3. **Konfigurasi Environment:**
+3. **Setup File Environment (.env):**
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
 
-4. **Migrasi Database & Seeder:**
+4. **Jalankan Migrasi dan Seeder:**
    ```bash
    php artisan migrate:fresh --seed
    ```
-   *(Perintah ini akan membuat skema tabel dan menyuntikkan 6 kategori serta 21 buku akademik Del menggunakan Faker).*
+   *(Akan membuat tabel dan mengisi 6 kategori serta 21 buku menggunakan Faker)*.
 
-5. **Jalankan Pengujian Otomatis:**
-   ```bash
-   php artisan test
-   ```
-   *(9 pengujian Unit & Feature test berstatus PASS hijau).*
-
-6. **Jalankan Server Lokal:**
+5. **Jalankan Server:**
    ```bash
    php artisan serve
    ```
-   Buka di peramban: `http://127.0.0.1:8000`.
+   Akses di browser pada: `http://127.0.0.1:8000`.
 
 ---
 
-## 7. Riwayat Git Conventional Commits
+## Riwayat Git Conventional Commits
 
-Commit repositori disusun teratur sesuai standar konvensi yang ditentukan pada modul praktikum:
-
-| Commit Hash | Pesan Commit (Conventional Commits) |
-| :--- | :--- |
-| `88cf695` | `chore: initial project scaffolding with Laravel 11` |
-| `d11ba0a` | `feat(migration): create kategoris and bukus tables schema` |
-| `c1800f1` | `feat(model): define relationships and fillable attributes` |
-| `9068d98` | `feat(controller): implement restful actions and server validation` |
-| `25bbc25` | `feat(views): construct blade component layout and crud templates` |
-| `4f35ee0` | `perf(eager-loading): optimize sql queries to prevent n+1 problem` |
+Commit tugas ini disusun sesuai ketentuan modul praktikum:
+* `feat(migration): create kategoris and bukus tables schema`
+* `feat(model): define relationships and fillable attributes`
+* `feat(controller): implement restful actions and server validation`
+* `feat(views): construct blade component layout and crud templates`
+* `perf(eager-loading): optimize sql queries to prevent n+1 problem`
