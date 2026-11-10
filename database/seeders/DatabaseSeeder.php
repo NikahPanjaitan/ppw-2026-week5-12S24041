@@ -4,7 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\Buku;
 use App\Models\Kategori;
+use App\Models\Peminjaman;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,6 +16,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // 0. Akun Pustakawan Uji untuk otentikasi token Sanctum
+        User::firstOrCreate(
+            ['email' => 'pustakawan@del.ac.id'],
+            [
+                'name'     => 'Pustakawan Del',
+                'password' => Hash::make('password123'),
+            ]
+        );
+
         // 1. Generate minimal 5 Kategori (dibuat 6 kategori relevan Kampus Del)
         $categoriesData = [
             ['kode_kategori' => 'KTG-001', 'nama_kategori' => 'Rekayasa Perangkat Lunak'],
@@ -40,7 +52,7 @@ class DatabaseSeeder extends Seeder
                 'penerbit' => 'Prentice Hall',
                 'tahun_terbit' => 2018,
                 'kategori_id' => $kategoris[0]->id,
-                'stok' => 12,
+                'stok' => 5, // Stok = 5 (sampel buku tersedia cukup)
                 'sinopsis' => 'Panduan komprehensif tentang teknik penulisan kode yang bersih, mudah dirawat, dan terstruktur sesuai standar industri perangkat lunak modern.',
             ],
             [
@@ -50,7 +62,7 @@ class DatabaseSeeder extends Seeder
                 'penerbit' => 'Addison-Wesley',
                 'tahun_terbit' => 2017,
                 'kategori_id' => $kategoris[0]->id,
-                'stok' => 8,
+                'stok' => 1, // Stok = 1 (khusus uji sirkulasi race condition & pinjam sampai habis)
                 'sinopsis' => 'Katalog pola desain berorientasi objek yang menjadi acuan klasik bagi insinyur perangkat lunak dalam memecahkan permasalahan arsitektur umum.',
             ],
             [
@@ -60,7 +72,7 @@ class DatabaseSeeder extends Seeder
                 'penerbit' => 'Del Press',
                 'tahun_terbit' => 2024,
                 'kategori_id' => $kategoris[0]->id,
-                'stok' => 25,
+                'stok' => 0, // Stok = 0 (khusus uji penolakan kuota 422 di Postman)
                 'sinopsis' => 'Buku ajar komprehensif mengenai arsitektur MVC, Eloquent ORM, validasi server-side, serta implementasi RESTful API menggunakan Laravel 11.',
             ],
             [
@@ -251,5 +263,32 @@ class DatabaseSeeder extends Seeder
                 $bukuData
             );
         }
+
+        // 3. Sampel Peminjaman Transaksi (untuk uji SOAP clearance, REST, HATEOAS & ACID)
+        Peminjaman::firstOrCreate(
+            ['kode_pinjam' => 'PINJAM-202611-001'],
+            [
+                'buku_id'             => 1,
+                'nim_peminjam'        => '12S22001',
+                'nama_peminjam'       => 'Bona Pandiangan',
+                'tanggal_pinjam'      => now()->subDays(3)->toDateString(),
+                'tanggal_jatuh_tempo' => now()->addDays(4)->toDateString(),
+                'tanggal_kembali'     => null,
+                'status'              => 'dipinjam',
+            ]
+        );
+
+        Peminjaman::firstOrCreate(
+            ['kode_pinjam' => 'PINJAM-202611-002'],
+            [
+                'buku_id'             => 2,
+                'nim_peminjam'        => '12S22002',
+                'nama_peminjam'       => 'Siti Siregar',
+                'tanggal_pinjam'      => now()->subDays(10)->toDateString(),
+                'tanggal_jatuh_tempo' => now()->subDays(3)->toDateString(),
+                'tanggal_kembali'     => now()->subDays(2)->toDateString(),
+                'status'              => 'dikembalikan',
+            ]
+        );
     }
 }
