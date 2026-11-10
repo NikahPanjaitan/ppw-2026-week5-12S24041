@@ -1,0 +1,11 @@
+$kind: http-request
+description: Menghapus buku yang tidak memiliki pinjaman aktif, mereturn status 204 No Content tanpa body.
+url: "{{base_url}}/bukus/21"
+method: DELETE
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 11000

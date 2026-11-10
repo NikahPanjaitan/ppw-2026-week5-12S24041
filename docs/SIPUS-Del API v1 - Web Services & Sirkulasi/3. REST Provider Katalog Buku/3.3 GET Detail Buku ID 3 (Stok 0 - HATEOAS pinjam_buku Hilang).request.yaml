@@ -1,0 +1,7 @@
+$kind: http-request
+description: Buku dengan stok = 0 otomatis menyembunyikan tautan HATEOAS pinjam_buku.
+url: "{{base_url}}/bukus/3"
+method: GET
+headers:
+  Accept: application/json
+order: 3000

@@ -1,0 +1,15 @@
+$kind: http-request
+description: Memastikan respon gagal login berstatus 401 dengan format RFC 7807.
+url: "{{base_url}}/auth/login"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "email": "pustakawan@del.ac.id",
+        "password": "password_salah"
+    }
+order: 2000

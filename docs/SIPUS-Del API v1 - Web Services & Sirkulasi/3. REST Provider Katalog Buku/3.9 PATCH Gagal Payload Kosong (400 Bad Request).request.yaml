@@ -1,0 +1,15 @@
+$kind: http-request
+description: Uji penolakan 400 Bad Request jika payload PATCH kosong.
+url: "{{base_url}}/bukus/1"
+method: PATCH
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: "{}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 9000

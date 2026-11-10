@@ -1,0 +1,25 @@
+$kind: http-request
+description: "PUT semantik: seluruh field representasi dikirim lengkap untuk menimpa state buku."
+url: "{{base_url}}/bukus/1"
+method: PUT
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "isbn": "978-602-001-101-1",
+        "judul": "Clean Code: Edisi Revisi Komprehensif",
+        "penulis": "Robert C. Martin",
+        "penerbit": "Prentice Hall Publishing",
+        "tahun_terbit": 2020,
+        "kategori_id": 1,
+        "stok": 5,
+        "sinopsis": "Edisi pembaruan teknik koding bersih."
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 7000

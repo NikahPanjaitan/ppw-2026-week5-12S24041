@@ -1,0 +1,7 @@
+$kind: http-request
+description: Memastikan akses rute terproteksi tanpa token menghasilkan error 401 RFC 7807.
+url: "{{base_url}}/auth/me"
+method: GET
+headers:
+  Accept: application/json
+order: 4000

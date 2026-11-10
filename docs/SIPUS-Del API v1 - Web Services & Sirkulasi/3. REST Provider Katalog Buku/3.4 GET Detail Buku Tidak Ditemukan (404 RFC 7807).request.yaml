@@ -1,0 +1,7 @@
+$kind: http-request
+description: Memastikan respon 404 berformat application/problem+json standar RFC 7807.
+url: "{{base_url}}/bukus/9999"
+method: GET
+headers:
+  Accept: application/json
+order: 4000

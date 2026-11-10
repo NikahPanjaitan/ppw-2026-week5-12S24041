@@ -1,0 +1,25 @@
+$kind: http-request
+description: Menambahkan buku baru, merespons 201 Created dan menyertakan header Location.
+url: "{{base_url}}/bukus"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "isbn": "978-623-00-1122-8",
+        "judul": "Arsitektur Web Services dan REST API Modern",
+        "penulis": "Chandro Pardede",
+        "penerbit": "Del Press",
+        "tahun_terbit": 2024,
+        "kategori_id": 1,
+        "stok": 10,
+        "sinopsis": "Panduan mendalam implementasi REST API dan HATEOAS pada Laravel 11."
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 5000

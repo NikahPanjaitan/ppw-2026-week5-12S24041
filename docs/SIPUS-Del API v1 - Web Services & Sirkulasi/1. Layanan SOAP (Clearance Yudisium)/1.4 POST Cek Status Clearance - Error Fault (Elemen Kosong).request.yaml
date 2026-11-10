@@ -1,0 +1,18 @@
+$kind: http-request
+description: Uji pengembalian soap:Fault dengan status HTTP 500 saat nim_peminjam kosong.
+url: http://127.0.0.1:8000/soap/sipus
+method: POST
+headers:
+  Content-Type: text/xml; charset=utf-8
+body:
+  type: xml
+  content: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:m="http://sipus.del.ac.id/soap/clearance">
+        <soap:Body>
+            <m:CheckClearanceStatusRequest>
+                <m:nim_peminjam></m:nim_peminjam>
+            </m:CheckClearanceStatusRequest>
+        </soap:Body>
+    </soap:Envelope>
+order: 4000

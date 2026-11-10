@@ -1,0 +1,20 @@
+$kind: http-request
+description: Menolak peminjaman pada buku ID 3 yang stoknya 0, mengembalikan 422 Unprocessable Content.
+url: "{{base_url}}/peminjamans"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "buku_id": 3,
+        "nim_peminjam": "12S24041",
+        "nama_peminjam": "Nikah Suchia"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 4000

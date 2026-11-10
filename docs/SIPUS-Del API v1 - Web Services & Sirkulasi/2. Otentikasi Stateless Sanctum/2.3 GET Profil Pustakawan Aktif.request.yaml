@@ -1,0 +1,11 @@
+$kind: http-request
+description: Mengakses profil pustakawan menggunakan token Bearer Sanctum.
+url: "{{base_url}}/auth/me"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 3000

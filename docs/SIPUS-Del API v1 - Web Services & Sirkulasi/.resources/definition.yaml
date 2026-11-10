@@ -1,0 +1,7 @@
+$kind: collection
+description: |-
+  Koleksi Postman resmi untuk Praktikum Minggu 9 Mata Kuliah Pemrograman dan Pengujian Aplikasi Web (12S3101) - Institut Teknologi Del.
+  Mencakup pengujian Layanan SOAP Clearance Yudisium, RESTful Provider Katalog Buku & Sirkulasi ACID, Bearer Token Sanctum, HATEOAS Level 3, RFC 7807, dan Consumer Eksternal OpenLibrary.
+variables:
+  base_url: http://127.0.0.1:8000/api/v1
+  token: ""

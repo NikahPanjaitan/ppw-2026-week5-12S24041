@@ -1,0 +1,22 @@
+$kind: http-request
+name: 4.3 POST Peminjaman Gagal - Duplikat Pinjaman Aktif (409 Conflict)
+description: Menolak peminjaman jika mahasiswa masih memiliki pinjaman aktif buku yang sama.
+url: "{{base_url}}/peminjamans"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "buku_id": 2,
+        "nim_peminjam": "12S24041",
+        "nama_peminjam": "Nikah Suchia",
+        "durasi_hari": 7
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 3000

@@ -1,0 +1,18 @@
+$kind: http-request
+description: "PATCH semantik: cukup kirim kolom stok saja tanpa merusak atribut lainnya."
+url: "{{base_url}}/bukus/1"
+method: PATCH
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "stok": 12
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 8000

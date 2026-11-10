@@ -1,0 +1,11 @@
+$kind: http-request
+description: Menolak penghapusan buku yang masih memiliki transaksi pinjam aktif (409 Conflict).
+url: "{{base_url}}/bukus/1"
+method: DELETE
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 10000

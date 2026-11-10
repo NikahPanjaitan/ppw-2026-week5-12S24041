@@ -1,0 +1,21 @@
+$kind: http-request
+description: Mencatat peminjaman buku atomik dengan lockForUpdate, stok berkurang 1.
+url: "{{base_url}}/peminjamans"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "buku_id": 2,
+        "nim_peminjam": "12S24041",
+        "nama_peminjam": "Nikah Suchia",
+        "durasi_hari": 7
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 2000

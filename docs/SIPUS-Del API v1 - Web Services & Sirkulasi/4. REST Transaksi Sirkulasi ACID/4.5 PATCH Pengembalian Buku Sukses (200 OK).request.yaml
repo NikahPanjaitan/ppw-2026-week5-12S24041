@@ -1,0 +1,11 @@
+$kind: http-request
+description: Mengembalikan buku secara atomik, mengubah status jadi dikembalikan, dan menambah stok (+1).
+url: "{{base_url}}/peminjamans/1/kembalikan"
+method: PATCH
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 5000

@@ -1,0 +1,7 @@
+$kind: http-request
+description: Memanggil API publik eksternal OpenLibrary via Http facade Laravel dengan timeout dan fallback aman.
+url: "{{base_url}}/bukus/1/referensi-eksternal"
+method: GET
+headers:
+  Accept: application/json
+order: 1000

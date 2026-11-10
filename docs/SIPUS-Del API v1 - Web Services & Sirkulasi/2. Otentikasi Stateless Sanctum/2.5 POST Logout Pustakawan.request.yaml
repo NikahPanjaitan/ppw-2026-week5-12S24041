@@ -1,0 +1,11 @@
+$kind: http-request
+description: Mencabut token Bearer aktif di sisi server.
+url: "{{base_url}}/auth/logout"
+method: POST
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 5000

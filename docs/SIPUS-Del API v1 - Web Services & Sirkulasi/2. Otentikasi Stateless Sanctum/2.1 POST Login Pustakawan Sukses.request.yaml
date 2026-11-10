@@ -1,0 +1,27 @@
+$kind: http-request
+description: Login pustakawan untuk mendapatkan token Bearer Sanctum.
+url: "{{base_url}}/auth/login"
+method: POST
+headers:
+  Accept: application/json
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "email": "pustakawan@del.ac.id",
+        "password": "password123",
+        "device_name": "postman-desktop"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 200) {
+          var json = pm.response.json();
+          if (json.data && json.data.access_token) {
+              pm.collectionVariables.set('token', json.data.access_token);
+              console.log('Token otomatis tersimpan: ' + json.data.access_token);
+          }
+      }
+    language: text/javascript
+order: 1000

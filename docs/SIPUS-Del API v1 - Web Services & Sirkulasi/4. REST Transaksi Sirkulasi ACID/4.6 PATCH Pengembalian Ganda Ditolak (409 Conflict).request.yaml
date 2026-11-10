@@ -1,0 +1,11 @@
+$kind: http-request
+description: Menolak pengembalian buku yang statusnya sudah dikembalikan sebelumnya.
+url: "{{base_url}}/peminjamans/1/kembalikan"
+method: PATCH
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{token}}"
+order: 6000

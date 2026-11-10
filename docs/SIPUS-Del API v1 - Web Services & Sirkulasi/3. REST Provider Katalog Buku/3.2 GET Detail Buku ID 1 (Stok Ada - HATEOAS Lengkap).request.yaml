@@ -1,0 +1,7 @@
+$kind: http-request
+description: Buku dengan stok > 0 memuat tautan HATEOAS pinjam_buku di dalam _links.
+url: "{{base_url}}/bukus/1"
+method: GET
+headers:
+  Accept: application/json
+order: 2000
