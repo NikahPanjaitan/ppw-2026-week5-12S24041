@@ -1,104 +1,161 @@
-# Tugas Praktikum Minggu 05 — PPW
+# Tugas Praktikum Minggu 06 — PPW (SIPUS-Del Tahap 2)
 ## Sistem Informasi Perpustakaan Kampus Del (SIPUS-Del)
+**Konektivitas Basis Data Persisten, Arsitektur PDO, Fluent Query Builder, Transaksi ACID & Concurrency Locking, serta Manajemen Sesi & Autentikasi Pustakawan pada Laravel 11.x**
 
-## Identitas Mahasiswa
+---
+
+## 👩‍🎓 Identitas Mahasiswa
 * **Nama:** Nikah Suchia Panjaitan
 * **NIM:** 12S24041
-* **Program Studi:** S1 Sistem Informasi
+* **Program Studi:** Sarjana Sistem Informasi
+* **Fakultas:** Fakultas Informatika dan Teknik Elektro
 * **Institut:** Institut Teknologi Del
+* **Mata Kuliah:** Pemrograman & Pengujian Web (12S3101)
 * **Dosen Pengampu:** Chandro Pardede, S.Kom., M.Sc.
+* **Branch Pengembangan:** `week6-db-session`
 
 ---
 
-## Deskripsi Tugas
-Aplikasi **SIPUS-Del** adalah sistem informasi perpustakaan berbasis web yang dibuat menggunakan framework **Laravel 11**. Tugas ini bertujuan untuk mengimplementasikan konsep arsitektur Model-View-Controller (MVC), relasi Eloquent ORM (One-to-Many), validasi form sisi server, Blade component engine, dan optimasi query database (mitigasi N+1 problem menggunakan Eager Loading).
+## 🔑 Kredensial Akun Uji Pustakawan (Sesuai Modul)
+* **URL Login:** `http://127.0.0.1:8000/login`
+* **Email:** `pustakawan@del.ac.id`
+* **Password:** `password123`
+* **Peran:** Pustakawan Terautentikasi (Dapat melakukan mutasi katalog dan sirkulasi peminjaman/pengembalian buku)
 
 ---
 
-## Fitur yang Dikerjakan
+## 🌟 Spesifikasi & Fitur yang Diimplementasikan (Tahap 2)
 
-### 1. Manajemen Koleksi Buku (CRUD Lengkap)
-* **Tampilkan Daftar Buku:** Menampilkan katalog buku dengan pagination (10 buku per halaman) dan relasi kategori.
-* **Tambah Buku Baru:** Formulir input buku dengan validasi sisi server:
-  * ISBN unik
-  * Judul minimal 5 karakter
-  * Penulis, penerbit, tahun terbit (4 digit) wajib diisi
-  * Kategori harus terdaftar di database
-  * Stok minimal 0 (tidak boleh minus)
-* **Detail Buku:** Melihat informasi lengkap buku dan sinopsis menggunakan Route Model Binding.
-* **Edit Buku:** Mengubah informasi data buku menggunakan method spoofing `@method('PUT')`.
-* **Hapus Buku:** Menghapus data buku menggunakan method spoofing `@method('DELETE')`.
+### 1. Skema Tabel Transaksi Sirkulasi (`peminjamans`) & Relasi Eloquent
+* Membuat migration tabel `peminjamans`:
+  * `id` (Primary Key)
+  * `kode_pinjam` (string unik, format `PJM-YYYYMMDD-XXXXX`)
+  * `buku_id` (Foreign Key mengacu ke `bukus.id` dengan klausa `cascadeOnDelete()`)
+  * `nim_peminjam` (string 15)
+  * `nama_peminjam` (string 150)
+  * `tanggal_pinjam` (date)
+  * `tanggal_jatuh_tempo` (date, default 7 hari)
+  * `tanggal_kembali` (date, nullable)
+  * `status` (`dipinjam` / `dikembalikan`)
+  * `timestamps`
+* Model Eloquent `Peminjaman` dengan proteksi `$fillable` dan relasi `belongsTo(Buku::class)`.
+* Relasi pada model `Buku`: `hasMany(Peminjaman::class)`.
 
-### 2. Manajemen Kategori Buku (CRUD Lengkap)
-* Menampilkan daftar kategori beserta jumlah buku di dalamnya.
-* Tambah kategori baru dengan kode kategori unik dan nama kategori.
-* Edit dan hapus data kategori.
-* Relasi: Satu kategori memiliki banyak buku (`hasMany`), dan setiap buku berinduk ke satu kategori (`belongsTo`).
+### 2. Transaksi Basis Data ACID & Concurrency Locking (`lockForUpdate`)
+* **Transaksi Peminjaman Buku:**
+  * Dibungkus di dalam `DB::transaction()` dengan percobaan ulang (retry 3x).
+  * Penguncian baris pesimistik (*Pessimistic Locking*): `Buku::where('id', $id)->lockForUpdate()->firstOrFail()` guna mencegah bahaya *Race Condition* saat beberapa pengguna meminjam buku terakhir secara simultan.
+  * **Pemeriksaan Stok Kritis:** Jika `stok < 1`, sistem melemparkan `\RuntimeException` yang memicu rollback otomatis tanpa mengurangi stok fisik menjadi minus.
+  * **Pencegahan Peminjaman Ganda:** Memeriksa apakah NIM peminjam masih meminjam buku yang sama dengan status `dipinjam`.
+  * Pengurangan stok fisik secara atomik via `$buku->decrement('stok')`.
+* **Transaksi Pengembalian Buku:**
+  * Dibungkus di dalam `DB::transaction()` + `lockForUpdate()`.
+  * Mengubah status menjadi `dikembalikan` dan mengisi `tanggal_kembali`.
+  * Memulihkan stok fisik buku secara atomik via `$buku->increment('stok')`.
+  * Menangkap `QueryException` dan mencatatnya ke `Log::error()`.
 
-### 3. Tampilan Antarmuka (Blade UI & Bootstrap 5)
-* Menggunakan master layout `<x-layout>` dengan Bootstrap 5 CDN.
-* Nuansa warna identitas kampus Del: **Del Royal Purple (`#4C1D95`)**.
-* Menampilkan pesan notifikasi flash session saat aksi berhasil (`@if(session('success'))`).
-* Menggunakan direktif `@forelse` dan `@empty` untuk menangani tabel jika data masih kosong.
-* Form dilengkapi token keamanan `@csrf` dan penampil pesan error `@error`.
+### 3. Fluent Query Builder (`DB::table`) & Agregasi `withCount`
+* **Katalog Buku:**
+  * Menggunakan `Buku::with('kategori')->withCount('peminjamans')` untuk menampilkan frekuensi peminjaman tiap koleksi tanpa memicu masalah N+1.
+  * Pencarian dinamis menggunakan method `when()` berdasarkan judul, penulis, ISBN, dan filter kategori.
+  * Paginasi aktif dengan `withQueryString()`.
+* **Dashboard Metrik Perpustakaan (4 Kartu Statistik):**
+  * Total Judul Buku: `DB::table('bukus')->count()`
+  * Total Stok Tersedia: `DB::table('bukus')->sum('stok')`
+  * Total Buku Sedang Dipinjam: `DB::table('peminjamans')->where('status', 'dipinjam')->count()`
+  * Total Buku Dikembalikan: `DB::table('peminjamans')->where('status', 'dikembalikan')->count()`
+
+### 4. Manajemen Sesi Pengguna & Autentikasi Pustakawan
+* `AuthController` mengelola siklus hidup autentikasi:
+  * Login dengan `Auth::attempt()`.
+  * **Regenerasi Session ID:** Wajib memanggil `$request->session()->regenerate()` saat login guna menangkal serangan *Session Fixation*.
+  * State sesi server: `session(['login_timestamp' => ...])` dan `session(['librarian_name' => ...])`.
+  * **HTTP Cookie Klien:** `Cookie::queue('del_last_librarian_email', $request->email, 10080)` (tersimpan 7 hari dengan proteksi `HttpOnly`).
+  * Logout aman: `Auth::logout()`, `$request->session()->invalidate()`, dan `$request->session()->regenerateToken()`.
+* Proteksi Rute:
+  * Rute publik (Read Only): Katalog buku dan detail buku.
+  * Rute terproteksi (`middleware(['auth'])`): Tambah/Edit/Hapus Buku, Kategori, Transaksi Pinjam, dan Pengembalian Buku.
+
+### 5. Seeder Data Uji Khusus (Batas Stok 0 & 1)
+* Akun Pustakawan: `pustakawan@del.ac.id` / `password123`.
+* Buku Stok Habis (`stok = 0`): *"Basis Data Terdistribusi & Transaksi Konkuren ACID"* (ISBN: `978-602-001-999-0`) untuk verifikasi penolakan peminjaman.
+* Buku Stok Satu (`stok = 1`): *"Teori Komputasi & Model Otomata Lanjutan"* (ISBN: `978-602-001-999-1`) untuk verifikasi peminjaman atomik batas kuota.
+* Sampel riwayat peminjaman (`dipinjam` & `dikembalikan`).
 
 ---
 
-## Pembuktian Mitigasi N+1 Query Problem (Eager Loading)
+## 🧪 Hasil Pengujian Otomatis (Automated Testing)
 
-Pada `BukuController@index`, pengambilan data buku menerapkan Eager Loading:
-```php
-$bukus = Buku::with('kategori')->latest()->paginate(10);
+Seluruh fungsionalitas Minggu 5 dan Minggu 6 telah diuji dan diverifikasi menggunakan PHPUnit / Pest Feature Tests:
+```powershell
+php artisan test
 ```
 
-Dengan Eager Loading, Laravel tidak menjalankan kueri berulang (1 + N kueri), melainkan hanya mengeksekusi **tepat 2 kueri terpadu** menggunakan klausa `WHERE IN`.
-
-Bukti log audit kueri yang tercatat di `storage/logs/laravel.log`:
+**Hasil Eksekusi:**
 ```text
-[2026-10-12 02:56:11] local.INFO: [SQL AUDIT] (0.48 ms) select * from "bukus" order by "created_at" desc limit 10 offset 0
-[2026-10-12 02:56:12] local.INFO: [SQL AUDIT] (0.50 ms) select * from "kategoris" where "kategoris"."id" in (1, 2, 3, 4, 5)
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ the application returns a successful response
+
+   PASS  Tests\Feature\SipusDelTest
+  ✓ root redirects to buku index
+  ✓ buku index renders with eager loading
+  ✓ buku store validation fails on invalid data
+  ✓ buku store success and redirects
+  ✓ buku update with route model binding
+  ✓ buku destroy
+  ✓ kategori crud
+
+   PASS  Tests\Feature\SipusDelWeek6Test
+  ✓ guest can view book catalog and analytics dashboard
+  ✓ guest is redirected to login when accessing protected routes
+  ✓ librarian can login with valid credentials and regenerates session
+  ✓ login fails with invalid credentials
+  ✓ successful book borrowing decrements stock atomically
+  ✓ borrowing fails and rolls back when book stock is zero
+  ✓ borrowing fails when same nim has not returned same book
+  ✓ successful book return increments stock atomically
+  ✓ dynamic search and with count on catalog
+  ✓ librarian logout invalidates session
+
+  Tests:    19 passed (85 assertions)
+  Duration: 3.02s
 ```
+**Status: 100% HIJAU (PASS).**
 
 ---
 
-## Cara Menjalankan Proyek Secara Lokal
+## 🚀 Panduan Menjalankan Proyek Secara Lokal
 
-1. **Clone Repositori:**
+1. **Pastikan berada pada branch `week6-db-session`:**
    ```bash
-   git clone https://github.com/NikahPanjaitan/ppw-2026-week5-12S24041.git
-   cd ppw-2026-week5-12S24041
+   git checkout week6-db-session
    ```
 
-2. **Install Dependensi Composer:**
-   ```bash
-   composer install
-   ```
-
-3. **Setup File Environment (.env):**
+2. **Setup Lingkungan (.env):**
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
 
-4. **Jalankan Migrasi dan Seeder:**
+3. **Jalankan Migrasi & Database Seeder:**
    ```bash
    php artisan migrate:fresh --seed
    ```
-   *(Akan membuat tabel dan mengisi 6 kategori serta 21 buku menggunakan Faker)*.
 
-5. **Jalankan Server:**
+4. **Jalankan Server Lokal:**
    ```bash
    php artisan serve
    ```
-   Akses di browser pada: `http://127.0.0.1:8000`.
+   Buka di peramban: `http://127.0.0.1:8000`.
 
 ---
 
-## Riwayat Git Conventional Commits
+## 📌 Riwayat Git Conventional Commits Minggu 6
 
-Commit tugas ini disusun sesuai ketentuan modul praktikum:
-* `feat(migration): create kategoris and bukus tables schema`
-* `feat(model): define relationships and fillable attributes`
-* `feat(controller): implement restful actions and server validation`
-* `feat(views): construct blade component layout and crud templates`
-* `perf(eager-loading): optimize sql queries to prevent n+1 problem`
+1. `feat(migration): create peminjamans table with foreign key to bukus`
+2. `feat(transaction): implement ACID book borrowing and return with lockForUpdate`
+3. `feat(query-builder): add library analytics dashboard and dynamic search`
+4. `feat(auth-session): implement librarian login, session regeneration, and cookies`

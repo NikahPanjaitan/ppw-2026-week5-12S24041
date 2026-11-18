@@ -12,6 +12,19 @@ class SipusDelTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $user = \App\Models\User::create([
+            'name'     => 'Tester Del',
+            'email'    => 'tester@del.ac.id',
+            'password' => bcrypt('password123'),
+        ]);
+
+        $this->actingAs($user);
+    }
+
     public function test_root_redirects_to_buku_index(): void
     {
         $response = $this->get('/');
