@@ -4,7 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\Buku;
 use App\Models\Kategori;
+use App\Models\Peminjaman;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -249,6 +252,77 @@ class DatabaseSeeder extends Seeder
             Buku::firstOrCreate(
                 ['isbn' => $bukuData['isbn']],
                 $bukuData
+            );
+        }
+
+        // 3. Seeder Akun Pustakawan Uji (Sesuai Modul: pustakawan@del.ac.id / password123)
+        User::firstOrCreate(
+            ['email' => 'pustakawan@del.ac.id'],
+            [
+                'name'              => 'Pustakawan Del',
+                'password'          => Hash::make('password123'),
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // 4. Seeder Buku Uji Transaksi ACID (Stok = 0 dan Stok = 1)
+        $bukuStokNol = Buku::firstOrCreate(
+            ['isbn' => '978-602-001-999-0'],
+            [
+                'judul'        => 'Basis Data Terdistribusi & Transaksi Konkuren ACID',
+                'penulis'      => 'Dr. Arsitek Basis Data',
+                'penerbit'     => 'Del Press',
+                'tahun_terbit' => 2024,
+                'kategori_id'  => $kategoris[5]->id,
+                'stok'         => 0, // STOK = 0 untuk menguji penolakan peminjaman & rollback otomatis
+                'sinopsis'     => 'Koleksi khusus perpustakaan untuk memverifikasi penolakan peminjaman ketika stok buku fisik habis.',
+            ]
+        );
+
+        $bukuStokSatu = Buku::firstOrCreate(
+            ['isbn' => '978-602-001-999-1'],
+            [
+                'judul'        => 'Teori Komputasi & Model Otomata Lanjutan',
+                'penulis'      => 'Prof. Michael Sipser',
+                'penerbit'     => 'MIT Press',
+                'tahun_terbit' => 2023,
+                'kategori_id'  => $kategoris[4]->id,
+                'stok'         => 1, // STOK = 1 untuk menguji atomic decrement dan race condition
+                'sinopsis'     => 'Edisi langka bahasa formal dan mesin turing untuk pengujian concurrency locking.',
+            ]
+        );
+
+        // 5. Sampel Riwayat Transaksi Peminjaman (Dipinjam & Dikembalikan)
+        $bukuPertama = Buku::where('isbn', '978-602-001-101-1')->first() ?? Buku::first();
+        $bukuKedua   = Buku::where('isbn', '978-602-001-102-2')->first() ?? Buku::skip(1)->first();
+
+        if ($bukuPertama) {
+            Peminjaman::firstOrCreate(
+                ['kode_pinjam' => 'PJM-20261012-DEL01'],
+                [
+                    'buku_id'             => $bukuPertama->id,
+                    'nim_peminjam'        => '12S24041',
+                    'nama_peminjam'       => 'Nikah Suchia Panjaitan',
+                    'tanggal_pinjam'      => now()->subDays(3)->toDateString(),
+                    'tanggal_jatuh_tempo' => now()->addDays(4)->toDateString(),
+                    'tanggal_kembali'     => null,
+                    'status'              => 'dipinjam',
+                ]
+            );
+        }
+
+        if ($bukuKedua) {
+            Peminjaman::firstOrCreate(
+                ['kode_pinjam' => 'PJM-20261005-DEL02'],
+                [
+                    'buku_id'             => $bukuKedua->id,
+                    'nim_peminjam'        => '12S24001',
+                    'nama_peminjam'       => 'Budi Pratama Sihombing',
+                    'tanggal_pinjam'      => now()->subDays(10)->toDateString(),
+                    'tanggal_jatuh_tempo' => now()->subDays(3)->toDateString(),
+                    'tanggal_kembali'     => now()->subDays(2)->toDateString(),
+                    'status'              => 'dikembalikan',
+                ]
             );
         }
     }

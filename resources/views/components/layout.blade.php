@@ -101,9 +101,41 @@
                             <i class="bi bi-tags me-1"></i> Kategori
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('peminjaman.*') ? 'active fw-semibold' : '' }}" href="{{ route('peminjaman.index') }}">
+                            <i class="bi bi-arrow-left-right me-1"></i> Sirkulasi Peminjaman
+                        </a>
+                    </li>
                 </ul>
-                <div class="d-flex text-white-50 small align-items-center">
-                    <i class="bi bi-mortarboard me-1"></i> Institut Teknologi Del
+                <div class="d-flex align-items-center gap-2">
+                    @auth
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-light dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-badge"></i>
+                                <span>{{ Auth::user()->name }}</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                <li><h6 class="dropdown-header small">Pustakawan Terautentikasi</h6></li>
+                                <li><span class="dropdown-item-text small text-muted"><i class="bi bi-envelope me-1"></i>{{ Auth::user()->email }}</span></li>
+                                @if(session('login_timestamp'))
+                                    <li><span class="dropdown-item-text small text-muted"><i class="bi bi-clock me-1"></i>{{ session('login_timestamp') }}</span></li>
+                                @endif
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{{ route('logout') }}" method="POST" class="px-2">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-danger w-100 text-start">
+                                            <i class="bi bi-box-arrow-right me-1"></i> Logout Sesi
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-sm btn-light fw-semibold text-del shadow-sm">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Login Pustakawan
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>
