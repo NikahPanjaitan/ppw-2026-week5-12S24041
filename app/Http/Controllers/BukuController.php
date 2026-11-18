@@ -31,7 +31,17 @@ class BukuController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // Rekapitulasi Metrik Perpustakaan menggunakan Fluent Query Builder (DB::table)
+        // 1. Pendekatan Raw SQL (DB::select) - Analisis agregasi koleksi terpopuler
+        $popularBooks = DB::select(
+            "SELECT bukus.judul, COUNT(peminjamans.id) as total_dipinjam 
+             FROM bukus 
+             LEFT JOIN peminjamans ON bukus.id = peminjamans.buku_id 
+             GROUP BY bukus.id, bukus.judul 
+             ORDER BY total_dipinjam DESC 
+             LIMIT 3"
+        );
+
+        // 2. Pendekatan Fluent Query Builder (DB::table) - Rekapitulasi metrik statistik
         $stats = [
             'total_judul'    => DB::table('bukus')->count(),
             'total_stok'     => (int) DB::table('bukus')->sum('stok'),
@@ -39,9 +49,10 @@ class BukuController extends Controller
             'total_kembali'  => DB::table('peminjamans')->where('status', 'dikembalikan')->count(),
         ];
 
+        // 3. Pendekatan Eloquent ORM (Model) - Pengambilan entitas kategori
         $kategoris = Kategori::orderBy('nama_kategori')->get();
 
-        return view('buku.index', compact('bukus', 'stats', 'kategoris', 'search', 'kategoriId'));
+        return view('buku.index', compact('bukus', 'stats', 'kategoris', 'search', 'kategoriId', 'popularBooks'));
     }
 
     // 2. Form Tambah Buku

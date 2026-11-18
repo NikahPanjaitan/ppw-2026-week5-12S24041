@@ -87,6 +87,25 @@
         </div>
     </div>
 
+    <!-- Strip Analisis Kueri Raw SQL (DB::select) Sesuai Indikator Modul 1.2 -->
+    @if(!empty($popularBooks) && empty($search))
+        <div class="card border-0 shadow-sm rounded-3 mb-4 bg-light">
+            <div class="card-body py-2 px-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div class="small fw-bold text-del d-flex align-items-center">
+                    <i class="bi bi-fire text-danger me-1 fs-6"></i> Koleksi Terpopuler (Kueri Agregasi Raw SQL <code>DB::select</code>):
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach($popularBooks as $pb)
+                        <span class="badge bg-white text-dark border small fw-normal">
+                            <strong>{{ \Illuminate\Support\Str::limit($pb->judul, 35) }}</strong>
+                            <span class="text-danger fw-bold ms-1">({{ $pb->total_dipinjam }}x)</span>
+                        </span>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Filter & Pencarian Dinamis (when()) -->
     <div class="card border-0 shadow-sm rounded-3 mb-4">
         <div class="card-body p-3">
